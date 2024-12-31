@@ -28,8 +28,8 @@ operational_array:
   unit_energy: 0.1 # pJ
   unit_area: 0.01 # unit
   dimensions: [D1]
-  sizes: [64]
+  sizes: [32]
 
 dataflows:
   D1: 
-    - K, 64
+    - K, 32

@@ -69,7 +69,7 @@ class ConvParser(OnnxComputeOperatorParser):
             f"iy={strides[1]}*oy+{dilations[1]}*fy",
         ]
         data["operand_precision"] = {"O": 16, "O_final": 8, "W": 8, "I": 8}
-
+        data["time_dim"] = ""
         # Add information wrt how this conv node's input/output tensors
         # are represented in the onnx model vs how they are represented in the equation above.
         # Because onnx doesn't actually encode the group dimension in a separate dimension

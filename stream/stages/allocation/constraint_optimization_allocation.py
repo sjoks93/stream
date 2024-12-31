@@ -357,8 +357,12 @@ class ConstraintOptimizationAllocationStage(Stage):
         # Create a modified sub-workload with the extra inter core splits
         max_layer_id = max(id[0] for _, _, id in allocation)
         sub_nodes = filter(lambda n: n.id <= max_layer_id, self.original_workload.node_list)
-        unpartitioned_sub_workload: DNNWorkloadStream = pickle_deepcopy(self.original_workload.subgraph(sub_nodes))
-
+        print([node for node in self.original_workload.node_list])
+        print('subnodes', [type(node) for node in sub_nodes])
+        unpartitioned_sub_workload: ComputationNodeWorkload = pickle_deepcopy(self.original_workload.subgraph(sub_nodes))
+        print('nodes')
+        print(node for node in unpartitioned_sub_workload.node_list)
+        print('end')
         # Get the involved layer ids we want to schedule and their core allocations
         layer_ids = sorted(set(id[0] for _, _, id in allocation))
         core_strs = [sorted(set((c for _, c, id in allocation if id[0] == layer_id))) for layer_id in layer_ids]
@@ -443,7 +447,10 @@ class ConstraintOptimizationAllocationStage(Stage):
         """! Modify the workload to fix the core allocations to the given core_ids for the given layer_ids."""
         assert len(layer_ids) == len(core_ids)
         for layer_id, cores in zip(layer_ids, core_ids):
+            print(layer_id)
+            print([n.id for n in workload.node_list])
             n = next(n for n in workload.node_list if n.id == layer_id)
+            print(layer_id, n.id)
             n.chosen_core_allocation = list(cores)
             n.possible_core_allocation = list(cores)
             n.core_allocation_is_fixed = True

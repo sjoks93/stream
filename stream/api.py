@@ -17,6 +17,7 @@ from stream.stages.generation.tiled_workload_generation import (
 from stream.stages.generation.tiling_generation import TilingGenerationStage
 from stream.stages.parsing.accelerator_parser import AcceleratorParserStage
 from stream.stages.parsing.onnx_model_parser import ONNXModelParserStage as StreamONNXModelParserStage
+from stream.stages.parsing.user_defined_model_parser import UserDefinedModelParserStage as StreamYAMLModelParserStage
 from stream.stages.set_fixed_allocation_performance import SetFixedAllocationPerformanceStage
 from stream.stages.stage import MainStage
 
@@ -65,6 +66,7 @@ def optimize_allocation_ga(
     experiment_id: str,
     output_path: str,
     skip_if_exists: bool = False,
+    wl_type: str = "ONNX",
 ) -> StreamCostModelEvaluation:
     _sanity_check_inputs(hardware, workload, mapping, mode, output_path)
 
@@ -83,10 +85,16 @@ def optimize_allocation_ga(
         scme = pickle_load(scme_path)
         logger.info(f"Loaded SCME from {scme_path}")
     else:
+        if wl_type=="ONNX":
+            WORKLOAD_PARSE_STAGE = StreamONNXModelParserStage
+        elif wl_type=="YAML":
+            WORKLOAD_PARSE_STAGE = StreamYAMLModelParserStage
+        else:
+            raise f"Invalid workload type {wl_type}"
         mainstage = MainStage(
             [  # Initializes the MainStage as entry point
                 AcceleratorParserStage,  # Parses the accelerator
-                StreamONNXModelParserStage,  # Parses the ONNX Model into the workload
+                WORKLOAD_PARSE_STAGE,  # Parses ONNX Model into the workload
                 LayerStacksGenerationStage,
                 TilingGenerationStage,
                 TiledWorkloadGenerationStage,
@@ -122,6 +130,7 @@ def optimize_allocation_co(
     experiment_id: str,
     output_path: str,
     skip_if_exists: bool = False,
+    wl_type: str = "ONNX",
 ) -> StreamCostModelEvaluation:
     _sanity_check_inputs(hardware, workload, mapping, mode, output_path)
     _sanity_check_gurobi_license()
@@ -143,10 +152,16 @@ def optimize_allocation_co(
         scme = pickle_load(scme_path)
         logger.info(f"Loaded SCME from {scme_path}")
     else:
+        if wl_type=="ONNX":
+            WORKLOAD_PARSE_STAGE = StreamONNXModelParserStage
+        elif wl_type=="YAML":
+            WORKLOAD_PARSE_STAGE = StreamYAMLModelParserStage
+        else:
+            raise f"Invalid workload type {wl_type}"        
         mainstage = MainStage(
             [  # Initializes the MainStage as entry point
                 AcceleratorParserStage,  # Parses the accelerator
-                StreamONNXModelParserStage,  # Parses the ONNX Model into the workload
+                WORKLOAD_PARSE_STAGE,  # Parses the Model into the workload
                 LayerStacksGenerationStage,
                 TilingGenerationStage,
                 TiledWorkloadGenerationStage,

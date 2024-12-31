@@ -35,10 +35,13 @@ class ComputationNode(LayerNode, Node):
     # Map the node's op_type to the corresponding layer dimension to split on for fusion
     FUSION_DIM_MAPPING: dict[str, list[LayerDim]] = {
         "conv": [LayerDim("OY")],
+        "conv_downsample": [LayerDim("OY")],
         "matmul": [LayerDim("D")],
         "gemm": [LayerDim("D")],
         "pooling": [LayerDim("OY")],
+        "pool": [LayerDim("OY")],
         "add": [LayerDim("D")],
+        "adds": [LayerDim("OY")],
         "mul": [LayerDim("D")],
         "softmax": [LayerDim("K")],
         "max": [LayerDim("K")],

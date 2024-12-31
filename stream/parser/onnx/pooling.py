@@ -69,12 +69,13 @@ class PoolingParser(OnnxComputeOperatorParser):
         data["loop_sizes"] = [B, K, OX, OY, C, FX, FY]
         data["pr_loop_dims"] = ["IX", "IY"]
         data["pr_loop_sizes"] = [IX, IY]
+        data["time_dim"] = ""
         data["dimension_relations"] = [
             f"ix={strides[0]}*ox+{dilations[0]}*fx",
             f"iy={strides[1]}*oy+{dilations[1]}*fy",
         ]
         data["operand_precision"] = {"O": 8, "O_final": 8, "W": 0, "I": 8}
-
+        
         # Find the previous layer(s) that should be this node's parent(s)
         data["operand_source"] = {}
         node_inputs = self.node.input

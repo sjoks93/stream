@@ -96,7 +96,7 @@ class SoftmaxExpParser(OnnxComputeOperatorParser):
         data["operand_precision"] = self.get_operand_precision_input_format()
         data["dimension_relations"] = []
         data["loop_sizes"] = input_shape
-
+        data["time_dim"] = ""
         # C is the row dimension, so W should not have this as there is only 1 max value for each row
         match len(input_shape):
             case 2:

@@ -23,7 +23,8 @@ class Reduce1DParser(OnnxComputeOperatorParser):
         data["operand_precision"] = self.get_operand_precision_input_format()
         data["dimension_relations"] = []
         data["loop_sizes"] = input_shape
-
+        data["time_dim"] = ""
+        
         match len(input_shape):
             case 2:
                 data["equation"] = "O[k]+=I[k][c]*W[]"

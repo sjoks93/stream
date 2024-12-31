@@ -33,7 +33,7 @@ class AsymmetricSimdParser(OnnxComputeOperatorParser):
         data["operand_precision"] = self.get_operand_precision_input_format()
         data["dimension_relations"] = []
         data["loop_sizes"] = output_shape
-
+        data["time_dim"] = ""
         data["equation"] = "O[b][d][k]+=I[b][d][k]*W[d][k]"
         data["loop_dims"] = ["B", "D", "k"]
 

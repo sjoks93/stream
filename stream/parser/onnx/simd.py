@@ -25,7 +25,7 @@ class SimdParser(OnnxComputeOperatorParser):
         data["operand_precision"] = self.get_operand_precision_input_format()
         data["dimension_relations"] = []
         data["loop_sizes"] = output_shape
-
+        data["time_dim"] = ""
         match len(output_shape):
             case 1:
                 data["equation"] = f"O[k]+=I[k]*W{'[]' if has_single_input else '[k]'}"
