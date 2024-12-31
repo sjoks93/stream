@@ -25,10 +25,15 @@ nb_ga_individuals = 4
 
 ################################PARSING###############################
 hw_name = accelerator.split("/")[-1].split(".")[0]
-wl_name = re.split(r"/|\.", workload_path)[-1]
-if wl_name == "onnx":
-    wl_name = re.split(r"/|\.", workload_path)[-2]
-experiment_id = f"{hw_name}-{wl_name}-{mode}-genetic_algorithm"
+wl_name = workload_path.split("/")[-1].split(".")
+if wl_name[1] == "onnx":
+    wl_type = "ONNX"
+elif wl_name[1] == "yaml":
+    wl_type = "YAML"
+else:
+    raise f"Invalid workload name {wl_name[0]}.{wl_name[1]}"
+
+experiment_id = f"{hw_name}-{wl_name[0]}-{mode}-{wl_name[1]}-genetic_algorithm"
 ######################################################################
 
 ##############PLOTTING###############
@@ -58,6 +63,7 @@ scme = optimize_allocation_ga(
     experiment_id=experiment_id,
     output_path="outputs",
     skip_if_exists=True,
+    wl_type=wl_type,
 )
 
 # Load in the CostModelEvaluationLUT from the run

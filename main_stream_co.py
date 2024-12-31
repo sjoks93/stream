@@ -18,15 +18,22 @@ accelerator = "stream/inputs/examples/hardware/tpu_like_quad_core.yaml"
 workload_path = "stream/inputs/examples/workload/resnet18.onnx"
 mapping_path = "stream/inputs/examples/mapping/tpu_like_quad_core.yaml"
 mode = "fused"
-layer_stacks = [tuple(range(0, 11)), tuple(range(11, 22))] + list((i,) for i in range(22, 49))
 ##############################################################################################
 
 ################################PARSING###############################
 hw_name = accelerator.split("/")[-1].split(".")[0]
-wl_name = re.split(r"/|\.", workload_path)[-1]
-if wl_name == "onnx":
-    wl_name = re.split(r"/|\.", workload_path)[-2]
-experiment_id = f"{hw_name}-{wl_name}-{mode}-constraint_optimization"
+wl_name = workload_path.split("/")[-1].split(".")
+if wl_name[1] == "onnx":
+    wl_type = "ONNX"
+    layer_stacks = [tuple(range(0, 11)), tuple(range(11, 22))] + list((i,) for i in range(22, 49))
+elif wl_name[1] == "yaml":
+    wl_type = "YAML"
+    layer_stacks = [tuple(range(0, 7)), tuple(range(7, 14))] + list((i,) for i in range(14, 31))
+
+else:
+    raise f"Invalid workload name {wl_name[0]}.{wl_name[1]}"
+
+experiment_id = f"{hw_name}-{wl_name[0]}-{mode}-{wl_name[1]}-constraint_optimization"
 ######################################################################
 
 scme = optimize_allocation_co(
@@ -38,6 +45,7 @@ scme = optimize_allocation_co(
     experiment_id=experiment_id,
     output_path="outputs",
     skip_if_exists=True,
+    wl_type=wl_type,
 )
 
 ############PLOTTING#############
