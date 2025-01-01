@@ -305,6 +305,7 @@ class TiledWorkloadGenerationStage(Stage):
                 op_type=original_node.type,
                 produces_final_output=produces_final_output,
                 group_id=group_id,
+                outer_loop_values=outer_loop_values,
             )
             # Override loop_ranges property
             finer_node.update_loop_ranges(dim_min_max)
@@ -317,7 +318,9 @@ class TiledWorkloadGenerationStage(Stage):
             for constant_operand in finer_node.constant_operands:
                 tensor = finer_node.operand_tensors[constant_operand]
                 tensor.set_base_priorities(tensor_reuse_factors[constant_operand][n])
-
+            if finer_node.is_state:
+                tensor = finer_node.operand_tensors[original_node.state_operand]
+                tensor.set_base_priorities(tensor_reuse_factors[original_node.state_operand][n])
             # Replace any of the tensors with identical tensors of previous finer nodes
             for op, tensor in finer_node.operand_tensors.items():
                 replaced = False
@@ -897,7 +900,9 @@ def deduce_tensor_reuse_factors(
     # Transfer the outer_temporal_loops to r_ir_loop.
     #  An example can be r_ir_loop = {'W': [('ir', 3), ('r', 2), ('ir', 3)]}.
     r_ir_LUT = original_node.loop_relevancy_info
-    constant_operands = original_node.constant_operands
+    constant_operands = original_node.constant_operands.copy()
+    if original_node.is_state:
+        constant_operands.append(original_node.state_operand)
     r_ir_loop: dict[LayerOperand, list[tuple[str, int]]] = {}
     for constant_operand in constant_operands:
         r_ir_loop[constant_operand] = []

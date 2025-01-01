@@ -23,6 +23,7 @@ class TilingGenerationStage(Stage):
         accelerator: Accelerator,
         workload: WorkloadABC,
         layer_stacks: list[tuple[int, ...]],
+        stack_types: list[str],
         **kwargs: Any,
     ):
         super().__init__(list_of_callables, **kwargs)
@@ -31,15 +32,19 @@ class TilingGenerationStage(Stage):
 
         assert layer_stacks is not None
         self.layer_stacks = layer_stacks
+        self.stack_types = stack_types
         self.mode = kwargs.get("mode")
 
     def run(self):
         for node in self.workload.node_list:
             if not isinstance(node, ComputationNode):
                 continue
-            nb_nodes_in_stack = len(next(stack for stack in self.layer_stacks if node.id in stack))
-            self.set_valid_intra_core_tiling(node, nb_nodes_in_stack)
+            stack_id = self.find_node_stack_index(node)
+            nb_nodes_in_stack = len(self.layer_stacks[stack_id])
+            stack_type = self.stack_types[stack_id]
+            self.set_valid_intra_core_tiling(node, nb_nodes_in_stack, stack_type)
             self.set_valid_inter_core_tiling(node)
+
 
         self.kwargs["accelerator"] = self.accelerator
         self.kwargs["workload"] = self.workload
@@ -52,21 +57,23 @@ class TilingGenerationStage(Stage):
         for cme, extra_info in sub_stage.run():
             yield cme, extra_info
 
-    def set_valid_intra_core_tiling(self, node: ComputationNode, stack_size: int):
+    def set_valid_intra_core_tiling(self, node: ComputationNode, stack_size: int, stack_type: str):
         self.remove_invalid_entries_from_intra_core_tiling(node)
-
+        partition_time = (stack_type == "ST")
         if not node.intra_core_tiling:
             match self.mode:
                 case "lbl":
                     node.intra_core_tiling = []
                 case "fused":
-                    node.intra_core_tiling = self.generate_intra_core_tiling(node)
+                    node.intra_core_tiling = self.generate_intra_core_tiling(node, partition_time)
                 case _:
                     raise ValueError("Unsupported mode for hint loops determination.")
 
         # Override the intra_core_tiling in case the node is alone in a stack
         if stack_size == 1:
             node.intra_core_tiling = []
+        if partition_time:
+            node.intra_core_tiling.append(self.generate_temporal_partitions(node))
 
     def set_valid_inter_core_tiling(self, node: ComputationNode):
         self.remove_invalid_entries_from_inter_core_tiling(node)
@@ -74,6 +81,12 @@ class TilingGenerationStage(Stage):
         if not node.inter_core_tiling:
             # Add default tiling if not defined by user
             node.inter_core_tiling = self.generate_inter_core_tiling(node)
+
+    def find_node_stack_index(self, node: ComputationNode):
+        for index, stack in self.layer_stacks:
+            if node.id in stack:
+                return index
+        return -1
 
     def remove_invalid_entries_from_intra_core_tiling(self, node: ComputationNode):
         """If the user-defined intra core tiling is not valid w.r.t. the node's layer dimensions and sizes, change
@@ -113,8 +126,12 @@ class TilingGenerationStage(Stage):
         partition_dim = node.fusion_partition_dims[0]
         if partition_dim not in node.layer_dim_sizes:
             raise ValueError(f"Suggested partition dimension {partition_dim} for {node} is not part of this node")
-        return [(node.fusion_partition_dims[0], node.layer_dim_sizes[partition_dim])]
-
+        return [(partition_dim, node.layer_dim_sizes[partition_dim])]
+    
+    def generate_temporal_partitions(self, node: ComputationNode):
+            assert node.is_temporal, f"Node {node} is not temporal"
+            return (node.time_dim, node.layer_dim_sizes[node.time_dim])
+    
     def remove_invalid_entries_from_inter_core_tiling(self, node: ComputationNode):
         """Check wether this node's inter core tiling has invalid entries: non-existent layer dimension for this node
         or too large tiling size. Remove entry if this is the case

@@ -27,6 +27,7 @@ class LayerStacksGenerationStage(Stage):
         self.workload = workload
 
         self.layer_stacks = kwargs.get("layer_stacks", None)
+        self.stack_types = kwargs.get("stack_types", None)
         self.mode = kwargs.get("mode")
         self.stack_cutoff = kwargs.get("stack_cutoff", None)
         self.stack_cutoffs = kwargs.get("stack_cutoffs", None)
@@ -60,11 +61,14 @@ class LayerStacksGenerationStage(Stage):
         else:
             raise ValueError("Unsupported mode for layer stack determination.")
 
+        if self.stack_types is None:
+            self.stack_types = ["TB" for _ in range(len(self.layer_stacks))]
         self.only_keep_computation_node_ids()
 
         self.kwargs["accelerator"] = self.accelerator
         self.kwargs["workload"] = self.workload
         self.kwargs["layer_stacks"] = self.layer_stacks
+        self.kwargs["stack_types"] = self.stack_types
         sub_stage = self.list_of_callables[0](
             self.list_of_callables[1:],
             **self.kwargs,

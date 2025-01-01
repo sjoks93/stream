@@ -33,7 +33,7 @@ elif wl_name[1] == "yaml":
 else:
     raise f"Invalid workload name {wl_name[0]}.{wl_name[1]}"
 
-experiment_id = f"{hw_name}-{wl_name[0]}-{mode}-{wl_name[1]}-genetic_algorithm"
+experiment_id = f"{hw_name}-{wl_name[0]}-{mode}-{wl_name[1]}-genetic_algorithm-test"
 ######################################################################
 
 ##############PLOTTING###############
@@ -58,6 +58,7 @@ scme = optimize_allocation_ga(
     mapping=mapping_path,
     mode=mode,
     layer_stacks=layer_stacks,
+    stack_type=None,
     nb_ga_generations=nb_ga_generations,
     nb_ga_individuals=nb_ga_individuals,
     experiment_id=experiment_id,

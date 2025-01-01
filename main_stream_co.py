@@ -33,7 +33,7 @@ elif wl_name[1] == "yaml":
 else:
     raise f"Invalid workload name {wl_name[0]}.{wl_name[1]}"
 
-experiment_id = f"{hw_name}-{wl_name[0]}-{mode}-{wl_name[1]}-constraint_optimization"
+experiment_id = f"{hw_name}-{wl_name[0]}-{mode}-{wl_name[1]}-constraint_optimization-test"
 ######################################################################
 
 scme = optimize_allocation_co(
@@ -42,6 +42,7 @@ scme = optimize_allocation_co(
     mapping=mapping_path,
     mode=mode,
     layer_stacks=layer_stacks,
+    stack_types=None,
     experiment_id=experiment_id,
     output_path="outputs",
     skip_if_exists=True,

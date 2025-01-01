@@ -67,6 +67,7 @@ def optimize_allocation_ga(
     output_path: str,
     skip_if_exists: bool = False,
     wl_type: str = "ONNX",
+    stack_types: list[str] = None,
 ) -> StreamCostModelEvaluation:
     _sanity_check_inputs(hardware, workload, mapping, mode, output_path)
 
@@ -111,6 +112,7 @@ def optimize_allocation_ga(
             nb_ga_individuals=nb_ga_individuals,  # number of individuals in each ga generation
             mode=mode,
             layer_stacks=layer_stacks,
+            stack_types=stack_types,
             cost_lut_path=cost_lut_path,
             operands_to_prefetch=[],  # required by GeneticAlgorithmAllocationStage
         )
@@ -131,6 +133,7 @@ def optimize_allocation_co(
     output_path: str,
     skip_if_exists: bool = False,
     wl_type: str = "ONNX",
+    stack_types: list[str] = None,
 ) -> StreamCostModelEvaluation:
     _sanity_check_inputs(hardware, workload, mapping, mode, output_path)
     _sanity_check_gurobi_license()
@@ -176,6 +179,7 @@ def optimize_allocation_co(
             loma_lpf_limit=6,  # required by LomaEngine
             mode=mode,
             layer_stacks=layer_stacks,
+            stack_types=stack_types,
             cost_lut_path=cost_lut_path,
             allocations_path=allocations_path,
             cost_lut_post_co_path=cost_lut_post_co_path,
