@@ -33,7 +33,12 @@ class UserDefinedModelParserStage(ZigZagWorkloadParserStage):
         all_mappings = self.mapping_parser.run()
         workload = self.parse_workload_stream(all_mappings)
         self.kwargs["accelerator"] = self.accelerator
-        sub_stage = self.list_of_callables[0](self.list_of_callables[1:], workload=workload, **self.kwargs)
+        self.kwargs["all_mappings"] = all_mappings
+        sub_stage = self.list_of_callables[0](
+            self.list_of_callables[1:],
+            workload=workload,
+            **self.kwargs,
+        )
         for cme, extra_info in sub_stage.run():
             yield cme, extra_info
 

@@ -28,6 +28,7 @@ from stream.workload.dependency_propagation.transpose_node import TransposeNode
 from stream.workload.dnn_workload import DNNWorkloadStream
 from stream.workload.node import Node
 from stream.workload.onnx_workload import ComputationNodeWorkload, ONNXWorkload
+from stream.workload.workload_abc import WorkloadABC
 from stream.workload.tensor import Tensor
 
 logger = logging.getLogger(__name__)
@@ -48,7 +49,7 @@ class TiledWorkloadGenerationStage(Stage):
         self,
         list_of_callables: list[StageCallable],
         *,
-        workload: ONNXWorkload,
+        workload: WorkloadABC,
         accelerator: Accelerator,
         **kwargs: Any,
     ):

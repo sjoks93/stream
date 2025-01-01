@@ -15,7 +15,7 @@ _logging.basicConfig(level=_logging_level, format=_logging_format)
 
 ############################################INPUTS############################################
 accelerator = "stream/inputs/examples/hardware/tpu_like_quad_core.yaml"
-workload_path = "stream/inputs/examples/workload/resnet18.onnx"
+workload_path = "stream/inputs/examples/workload/resnet18.yaml"
 mapping_path = "stream/inputs/examples/mapping/tpu_like_quad_core.yaml"
 mode = "fused"
 ##############################################################################################

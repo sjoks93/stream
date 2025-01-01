@@ -1,12 +1,13 @@
 from typing import Any
 
 from zigzag.utils import DiGraphWrapper
-
+from stream.workload.workload_abc import WorkloadABC
 from stream.workload.computation.computation_node import ComputationNode
 from stream.workload.node import Node
+from copy import deepcopy
 
 
-class ONNXWorkload(DiGraphWrapper[Node]):
+class ONNXWorkload(WorkloadABC):
     """Represents a Workload Graph"""
 
     def __init__(self, **attr: Any):
@@ -23,11 +24,17 @@ class ONNXWorkload(DiGraphWrapper[Node]):
 
         self.add_node(node_obj)
         edges: list[tuple[Node, Node]] = []
+        print(f"parsed node {node_obj.type}_{node_obj.id}")
+        print(f"node {node_obj}")
         for parent_id in node_obj.input_operand_source.values():
+            print(f"id {parent_id}")
             parent_node_obj = self.node_id_to_obj[parent_id]
             edges.append((parent_node_obj, node_obj))
-            self.add_edges_from(edges)
+        self.add_edges_from(edges)
 
+    def get_copy_no_dummy(self) -> "ONNXWorkload":
+        """Return a copy. ONNXWorkload don't contain DummyNodes in the first place."""
+        return deepcopy(self)
 
 class ComputationNodeWorkload(DiGraphWrapper[ComputationNode]):
     """Workload graph with only ComputationNodes"""

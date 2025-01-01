@@ -9,7 +9,7 @@ from stream.hardware.architecture.accelerator import Accelerator
 from stream.stages.stage import Stage, StageCallable
 from stream.workload.computation.computation_node import ComputationNode
 from stream.workload.mapping import TILING_T
-from stream.workload.onnx_workload import ONNXWorkload
+from stream.workload.workload_abc import WorkloadABC
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ class TilingGenerationStage(Stage):
         list_of_callables: list[StageCallable],
         *,
         accelerator: Accelerator,
-        workload: ONNXWorkload,
+        workload: WorkloadABC,
         layer_stacks: list[tuple[int, ...]],
         **kwargs: Any,
     ):
@@ -34,8 +34,10 @@ class TilingGenerationStage(Stage):
         self.mode = kwargs.get("mode")
 
     def run(self):
+        print(self.workload.node_list)
         for node in self.workload.node_list:
             if not isinstance(node, ComputationNode):
+                print('not a computation node')
                 continue
             nb_nodes_in_stack = len(next(stack for stack in self.layer_stacks if node.id in stack))
             self.set_valid_intra_core_tiling(node, nb_nodes_in_stack)
