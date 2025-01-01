@@ -34,10 +34,8 @@ class TilingGenerationStage(Stage):
         self.mode = kwargs.get("mode")
 
     def run(self):
-        print(self.workload.node_list)
         for node in self.workload.node_list:
             if not isinstance(node, ComputationNode):
-                print('not a computation node')
                 continue
             nb_nodes_in_stack = len(next(stack for stack in self.layer_stacks if node.id in stack))
             self.set_valid_intra_core_tiling(node, nb_nodes_in_stack)

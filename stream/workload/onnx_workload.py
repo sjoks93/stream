@@ -24,10 +24,7 @@ class ONNXWorkload(WorkloadABC):
 
         self.add_node(node_obj)
         edges: list[tuple[Node, Node]] = []
-        print(f"parsed node {node_obj.type}_{node_obj.id}")
-        print(f"node {node_obj}")
         for parent_id in node_obj.input_operand_source.values():
-            print(f"id {parent_id}")
             parent_node_obj = self.node_id_to_obj[parent_id]
             edges.append((parent_node_obj, node_obj))
         self.add_edges_from(edges)

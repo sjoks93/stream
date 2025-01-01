@@ -118,7 +118,6 @@ class OnnxComputeOperatorParser(OnnxOperatorParser, metaclass=ABCMeta):
 
         # From the ONNX node
         node_data = self.get_layer_node_user_format(input_shape, output_shape)
-        print(node_data)
         node_factory = LayerNodeFactory(node_data, mapping_data=[])
         node_attrs = node_factory.create_node_attr()
 
