@@ -15,7 +15,8 @@ _logging.basicConfig(level=_logging_level, format=_logging_format)
 
 ############################################INPUTS############################################
 accelerator = "stream/inputs/examples/hardware/tpu_like_quad_core.yaml"
-workload_path = "stream/inputs/examples/workload/resnet18.yaml"
+#workload_path = "stream/inputs/examples/workload/resnet18.yaml"
+workload_path = "stream/inputs/testing/workload/restest.yaml"
 mapping_path = "stream/inputs/examples/mapping/tpu_like_quad_core.yaml"
 mode = "fused"
 ##############################################################################################
@@ -29,7 +30,7 @@ if wl_name[1] == "onnx":
 elif wl_name[1] == "yaml":
     wl_type = "YAML"
     layer_stacks = [tuple(range(0, 7)), tuple(range(7, 14))] + list((i,) for i in range(14, 31))
-
+    layer_stacks = [tuple(range(0, 2)),]
 else:
     raise f"Invalid workload name {wl_name[0]}.{wl_name[1]}"
 
@@ -42,10 +43,10 @@ scme = optimize_allocation_co(
     mapping=mapping_path,
     mode=mode,
     layer_stacks=layer_stacks,
-    stack_types=None,
+    stack_types=["ST"],
     experiment_id=experiment_id,
     output_path="outputs",
-    skip_if_exists=True,
+    skip_if_exists=False,
     wl_type=wl_type,
 )
 

@@ -83,7 +83,7 @@ class TilingGenerationStage(Stage):
             node.inter_core_tiling = self.generate_inter_core_tiling(node)
 
     def find_node_stack_index(self, node: ComputationNode):
-        for index, stack in self.layer_stacks:
+        for index, stack in enumerate(self.layer_stacks):
             if node.id in stack:
                 return index
         return -1

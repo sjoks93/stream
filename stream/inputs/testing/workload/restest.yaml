@@ -1,0 +1,75 @@
+- id: 0
+  operator_type: Conv
+  equation: O[b][t][k][oy][ox]+=W[k][c][fy][fx]*I[b][t][c][iy][ix]
+  dimension_relations: [ix=1*ox+1*fx, iy=1*oy+1*fy]
+  loop_dims : [B, T, K, C, OY, OX, FY, FX]
+  loop_sizes: [1, 4, 32, 16, 5, 5, 1, 1]
+  operand_precision:
+    O: 16
+    O_final: 8
+    W: 8
+    I: 8
+  operand_source:
+    W: 0
+    I: 0
+  pr_loop_dims: [IY, IX]
+  padding:
+    - [0, 0]
+    - [0, 0]
+
+- id: 1
+  operator_type: Conv
+  equation: O[b][t][k][oy][ox]+=W[k][c][fy][fx]*I[b][t][c][iy][ix]
+  dimension_relations: [ix=1*ox+1*fx, iy=1*oy+1*fy]
+  loop_dims : [B, T, K, C, OY, OX, FY, FX]
+  loop_sizes: [1, 4, 128, 32, 5, 5, 1, 1]
+  operand_precision:
+    O: 16
+    O_final: 8
+    W: 8
+    I: 8
+  operand_source:
+    W: 1
+    I: 0
+  pr_loop_dims: [IY, IX]
+  padding:
+    - [0, 0]
+    - [0, 0]
+
+#- id: 0
+#  operator_type: Conv
+#  equation: O[b][k][oy][ox]+=W[k][c][fy][fx]*I[b][c][iy][ix]
+#  dimension_relations: [ix=1*ox+1*fx, iy=1*oy+1*fy]
+#  loop_dims : [B, K, C, OY, OX, FY, FX]
+#  loop_sizes: [1, 32, 16, 5, 5, 1, 1]
+#  operand_precision:
+#    O: 16
+#    O_final: 8
+#    W: 8
+#    I: 8
+#  operand_source:
+#    W: 0
+#    I: 0
+#  pr_loop_dims: [IY, IX]
+#  padding:
+#    - [0, 0]
+#    - [0, 0]
+#
+#- id: 1
+#  operator_type: Conv
+#  equation: O[b][k][oy][ox]+=W[k][c][fy][fx]*I[b][c][iy][ix]
+#  dimension_relations: [ix=1*ox+1*fx, iy=1*oy+1*fy]
+#  loop_dims : [B, K, C, OY, OX, FY, FX]
+#  loop_sizes: [1, 64, 32, 5, 5, 1, 1]
+#  operand_precision:
+#    O: 16
+#    O_final: 8
+#    W: 8
+#    I: 8
+#  operand_source:
+#    W: 1
+#    I: 0
+#  pr_loop_dims: [IY, IX]
+#  padding:
+#    - [0, 0]
+#    - [0, 0]

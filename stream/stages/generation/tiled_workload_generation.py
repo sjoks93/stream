@@ -295,7 +295,7 @@ class TiledWorkloadGenerationStage(Stage):
             produces_final_output = all(
                 [dim_min_max[dim][1] >= original_node.layer_dim_sizes[dim] for dim in original_node_output_ir_dims]
             )
-
+            print('node ', original_node_id, ' loops: ', outer_loop_values, ' sub node: ', n)
             finer_node = ComputationNode(
                 node_id=original_node_id,
                 sub_id=n,
@@ -305,7 +305,7 @@ class TiledWorkloadGenerationStage(Stage):
                 op_type=original_node.type,
                 produces_final_output=produces_final_output,
                 group_id=group_id,
-                outer_loop_values=outer_loop_values,
+                #outer_loop_values=outer_loop_values,
             )
             # Override loop_ranges property
             finer_node.update_loop_ranges(dim_min_max)
@@ -388,15 +388,18 @@ class TiledWorkloadGenerationStage(Stage):
         # Add compensation for grouped convolutions:
         # If there is a G dimension in the loop ranges alongside a C or K, it means we have a 5D tensor,
         # where the onnx tensors are always flattened back to 4D (merging the G+C or G+K into one channel dimension)
+        print('loop ranges: ' ,loop_ranges, 'dimensions', dimensions, 'producer: ', producer, 'consumer ', consumer)
         dimensions, loop_ranges = self.flatten_grouped_convolution_ranges(producer, consumer, dimensions, loop_ranges)
         bounding_box = [loop_ranges[dim] for dim in dimensions]
 
         if not interleaved:
             bounding_box_flat = tuple([item for sublist in bounding_box for item in sublist])
+            print('box: ', bounding_box_flat)
             return bounding_box_flat
         else:
             bounding_box_flat = tuple(zip(*bounding_box))
             bounding_box_flat = tuple([item for sublist in bounding_box_flat for item in sublist])
+            print('box: ', bounding_box_flat)
             return bounding_box_flat
 
     def bounding_box_generator(
@@ -409,6 +412,7 @@ class TiledWorkloadGenerationStage(Stage):
             inclusive_ranges = self.convert_to_inclusive_data_range(node.loop_ranges)
             dimensions = node.operand_dimensionality_order[operand]
             bounds = self.get_bounding_box_dimensions(producer, consumer, dimensions, inclusive_ranges)
+            print('bounds: ', bounds)
             yield (i, bounds, None)
 
     def get_nb_input_dimensions(self, node: ComputationNode, operand: LayerOperand):
